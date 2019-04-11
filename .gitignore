@@ -1,0 +1,5 @@
+*.csv
+*.class
+*.txt
+lib/
+makefile
