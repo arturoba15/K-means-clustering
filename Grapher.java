@@ -1,51 +1,53 @@
-import java.awt.Color;
-import javax.swing.JFrame;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+
+/**
+ * Clase para hacer gráficas de dispersión
+ */
+
 class Grapher extends JFrame{
+  private XYSeriesCollection dataset;
+  private XYSeries d;
+  private String xLabel;
+  private String yLabel;
+  private String titlew;
+  private JFreeChart chart;
 
-  public Grapher(String appTitle, String chartTitle, String file, int attr1, int attr2) {
-  	super(appTitle);
-
-   	// based on the dataset we create the chart
-  	JFreeChart chart = ChartFactory.createScatterPlot(chartTitle, "X-Axis", "Y-Axis", createDataset(file, attr1-1, attr2-1),
-  		PlotOrientation.VERTICAL, true, true, true);
-
-  	// Changes background color
-  	XYPlot plot = (XYPlot) chart.getPlot();
-  	plot.setBackgroundPaint(new Color(255, 228, 196));
-
-  	// Adding chart into a chart panel
-  	ChartPanel chartPanel = new ChartPanel(chart);
-
-  	// settind default size
-  	chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));
-
-  	// add to contentPane
-  	setContentPane(chartPanel);
+  /**
+   * Constructor de la clase
+   */
+  Grapher(String title, int attr1, int attr2) {
+    super(title);
+    xLabel = "Atributo "  + attr1;
+    yLabel = "Atributo "  + attr2;
+    titlew = title;
+    dataset = new XYSeriesCollection();
+    d = new XYSeries(".");
   }
 
-  private XYDataset createDataset(String file, int attr1, int attr2) {
-    DataReader r = new DataReader(file);
-    String line;
-    double[] vals = new double[r.nAttr];
-    // create the dataset
-    final XYSeriesCollection dataset = new XYSeriesCollection();
-    XYSeries xyValues = new XYSeries("ejemplo");
-    while((line = r.readLine()) != null) {
-      vals = r.formatDouble(line);
-      // solo tomamos los 2 que vamos a graficar
-      xyValues.add(vals[attr1], vals[attr2]);
-    }
-    dataset.addSeries(xyValues);
+  /**
+   * Añade una tupla de datos (corresponde a 2 atributos)
+   */
+  public void addTuple(double val1, double val2) {
+    d.add(val1, val2);
+  }
 
-    return dataset;
+  /**
+   * Marca que ya no se registrarán mas datos y crea una imagen con la gráfica de dispersión
+   */
+  public void endData() {
+    dataset.addSeries(d);
+    chart = ChartFactory.createScatterPlot(titlew, xLabel, yLabel, dataset);
+    try {
+      ChartUtilities.saveChartAsJPEG(new File("plot2.jpg"), chart, 800, 600);
+    } catch (IOException e) {};
+
   }
 }

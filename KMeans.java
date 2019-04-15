@@ -122,7 +122,7 @@ class KMeans {
    * @param dpointY Punto de datos, valor Y
    * @return El índice del centroide que mas cerca este del punto
    */
-  private int bestCentroid(double[][] cents, int attr1, int attr2, double dpointX, double dpointY) {
+  private int clasify(double[][] cents, int attr1, int attr2, double dpointX, double dpointY) {
     // Checamos la diferencia entre todos los centroides
     double dis;
     int centIndex = -1;
@@ -147,23 +147,5 @@ class KMeans {
    */
   private double[] getAttr(double[] arr, int attr1, int attr2) {
     return new double[] {arr[attr1], arr[attr2]};
-  }
-
-  public static void main(String[] args) {
-    KMeans k = new KMeans("FlagData.txt", 126, 5);
-    // double[][] m = k.getRandomCentroids();
-    // System.out.println(k.bestCentroid(m, 2.0, 12.0));
-    double[][] m = k.initCentroids("1,2,3");
-    // for(int i = 0; i < m.length; i++) {
-    //   for(int j = 0; j < m[i].length; j++)
-    //     System.out.print(m[i][j] + " ");
-    //   System.out.println();
-    // }
-
-
-    // Normalizer n = new Normalizer("FlagData.txt");
-    // n.zScore();
-    // Redundancy red = new Redundancy("FlagData.txt");
-    // int[][] m = red.correlationCoeff(3);
   }
 }
