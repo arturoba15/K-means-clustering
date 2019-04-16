@@ -3,3 +3,8 @@
 *.txt
 lib/
 makefile
+.idea/
+kmeans.iml
+out/
+*.jpg
+..gitignore.swp
