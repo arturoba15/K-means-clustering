@@ -8,15 +8,16 @@ public class ClusterP {
     // Paso 4. Hacer kmeans a los datos normalizados
     /*Redundancy r = new Redundancy("FlagData.txt");
     r.printMatrix(r.pairs);*/
-    JFrame frame = new MainFrame("Kmeans");
+    //JFrame frame = new MainFrame("Kmeans");
+    KMeans k = new KMeans("bestAttrFlagData.txt", 124, 5, 0, 1, 10);
 
-    SwingUtilities.invokeLater(new Runnable() {
+    /*SwingUtilities.invokeLater(new Runnable() {
       @Override
       public void run() {
         frame.setSize(500, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
       }
-    });
+    });*/
   }
 }

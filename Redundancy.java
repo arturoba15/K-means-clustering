@@ -293,7 +293,7 @@ class Redundancy {
      */
     private void genFile(int[][] bestNominal, int[][] bestNumeric) {
         try (
-                BufferedWriter writer = new BufferedWriter(new FileWriter("bestAttr" + file))
+                BufferedWriter writer = new BufferedWriter(new FileWriter("./genFiles/bestAttr" + file))
         ) {
             DataReader r = new DataReader(file);
             String arr;
