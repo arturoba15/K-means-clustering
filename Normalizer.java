@@ -7,8 +7,8 @@ import java.io.IOException;
  * Solo normaliza los valores numéricos
  */
 class Normalizer {
-  private static final String dir = "./genFiles/";
   private String file;
+  private String dir = "./genFiles/";
 
   Normalizer(String file) {
     this.file = file;
@@ -24,7 +24,7 @@ class Normalizer {
     DataReader r = new DataReader(file);
 
     // Encuentra maximo y minimo de cada fila
-    double[] fLine = new double[r.nAttr];
+    double[] fLine;
     double[] max = new double[r.nAttr];
     double[] min = new double[r.nAttr];
     String line = r.readLine();
@@ -42,7 +42,7 @@ class Normalizer {
 
     // Calcula el valor normalizado y lo escribe a un archivo
     try (
-    BufferedWriter writer = new BufferedWriter(new FileWriter(dir + "minmax-" + file));
+    BufferedWriter writer = new BufferedWriter(new FileWriter(dir + "minmax" + file))
     ) {
       String[] res = new String[r.nAttr];
       r.reStart(false);
@@ -62,7 +62,7 @@ class Normalizer {
       }
     } catch(IOException e) {e.printStackTrace();}
 
-    return dir + "minmax-" + file;
+    return dir + "minmax" + file;
   }
 
   /**
@@ -78,7 +78,7 @@ class Normalizer {
     // Obtenemos promedio de cada atributo
     double[] meanAcc = new double[r.nAttr];
     double[] mean = new double[r.nAttr];
-    double[] fLine = new double[r.nAttr];
+    double[] fLine;
     while((line = r.readLine()) != null) {
       fLine = r.formatDouble(line);
       for (int i = 0; i < r.nAttr; i++) {
@@ -116,7 +116,7 @@ class Normalizer {
 
     // Calcula el valor normalizado y lo escribe a un archivo
     try (
-    BufferedWriter writer = new BufferedWriter(new FileWriter(dir + "zscore-" + file));
+    BufferedWriter writer = new BufferedWriter(new FileWriter(dir + "zscore" + file))
     ) {
       String[] res = new String[r.nAttr];
       r.reStart(false);
@@ -136,7 +136,7 @@ class Normalizer {
       }
     } catch(IOException e) {e.printStackTrace();}
 
-    return dir + "zscore-" + file;
+    return dir + "zscore" + file;
   }
 
   /**
@@ -151,7 +151,7 @@ class Normalizer {
 
     // Encuentra el valor máximo
     double[] max = new double[r.nAttr];
-    double[] fLine = new double[r.nAttr];
+    double[] fLine;
     while((line = r.readLine()) != null) {
       fLine = r.formatDouble(line);
       for (int i = 0; i < r.nAttr; i++) {
@@ -177,7 +177,7 @@ class Normalizer {
 
     // Calcula el valor normalizado y lo escribe a un archivo
     try (
-    BufferedWriter writer = new BufferedWriter(new FileWriter(dir + "decimal-" + file));
+    BufferedWriter writer = new BufferedWriter(new FileWriter(dir + "decimal" + file))
     ) {
       String[] res = new String[r.nAttr];
       r.reStart(false);
@@ -197,7 +197,7 @@ class Normalizer {
       }
     } catch(IOException e) {e.printStackTrace();}
 
-    return dir + "decimal-" + file;
+    return dir + "decimal" + file;
   }
 
   /* Métodos de ayuda */

@@ -28,7 +28,7 @@ class Redundancy {
             rNominal = getRelevantNominal(num/2);
             rNumeric = getRelevantNumeric(num/2);
         }
-        genFile(rNominal, rNumeric);
+        pairs = mergeMatrices(rNominal, rNumeric);
     }
 
     /**
@@ -78,7 +78,7 @@ class Redundancy {
 
             double num;
             double chiSquared = 0;
-            // Grado de libertad @TODO talvez agregar que cheque si pasa el valor requerido
+            // Grado de libertad
             // int df = (attr1N-1)*(attr2N-1);
             // double chiHyp = getChiValue(df);
             for (int i = 0; i < attr1N; i++)        // Cálculo de chi cuadrada
@@ -292,8 +292,9 @@ class Redundancy {
      *
      */
     private void genFile(int[][] bestNominal, int[][] bestNumeric) {
+        String resFile = "./genFiles/bestAttr-" + file;
         try (
-                BufferedWriter writer = new BufferedWriter(new FileWriter("./genFiles/bestAttr" + file))
+                BufferedWriter writer = new BufferedWriter(new FileWriter(resFile))
         ) {
             DataReader r = new DataReader(file);
             String arr;

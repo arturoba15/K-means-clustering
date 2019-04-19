@@ -38,7 +38,6 @@ class KMeans {
         clusterSizes = new int[k];
         means = getRandomCentroids(attr1, attr2);
         calculateMeans(maxIterations);
-        graphKMeans();
     }
 
     /**
@@ -58,7 +57,6 @@ class KMeans {
         clusterSizes = new int[k];
         means = initCentroids(centroids, attr1, attr2);
         calculateMeans(maxIterations);
-        graphKMeans();
     }
 
     /**
@@ -188,13 +186,6 @@ class KMeans {
         double[] fLine;
         int index;
         for(int i = 0; i < maxIterations; i++) {
-            for (int p = 0; p < means.length; p++) {
-                for (int pp = 0; pp < means[p].length; pp++) {
-                    System.out.print(means[p][pp] +  " ");
-                }
-                System.out.println();
-            }
-            System.out.println("-----------------");
             noChange = true;
             for(int j = 0; j < r.nData; j++) {
                 fLine = r.formatDouble(r.readLine());
@@ -220,10 +211,15 @@ class KMeans {
         Grapher g = new Grapher("Ejemplo", attr1, attr2, k);
         DataReader r = new DataReader(file);
         double[] fLine;
+
+        for(int i = 0; i < k; i++)      // Añadimos los means primero
+            g.addTuple(means[i][0], means[i][1], i);
+
         for(int i = 0; i < r.nData; i++) {
             fLine = r.formatDouble(r.readLine());
             g.addTuple(fLine[attr1], fLine[attr2], belongsTo[i]);
         }
+
         g.endData();
     }
 }

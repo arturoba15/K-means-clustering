@@ -9,17 +9,18 @@ import java.util.Random;
 
 public class MainFrame extends JFrame {
     public File dataFile, centroidFile; // Archivo de datos, archivo con los centroides (opcional)
-    public String centroidOption;   // Manera de obtener centroides
-    public int normOption, k, seed;          // Tipo de normalización 0-zscore 1-minmax 2-decimal 3-no
+    public int normOption, centroidOption, k, seed;          // Tipo de normalización 0-zscore 1-minmax 2-decimal 3-no
+                                                             // centroidOption -> 0-Aleatorio, 1-Texto, 2-Archivo
 
     public MainFrame(String title) {
         super(title);
         JPanel content = new JPanel();  // content -> Panel principal, cubre toda la ventana
         content.setLayout(new BorderLayout());      // Definir el Layout Manager
-        content.setBorder(BorderFactory.createEmptyBorder(14, 14, 14, 14));
+        content.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         /* Crear componentes de Swift */
         JButton dataFileButton = new JButton("Cargar archivo de datos");
+        JLabel warningText = new JLabel("");
 
         JPanel subLeftPanel = new JPanel();
         GridLayout grid = new GridLayout(0, 2);
@@ -50,11 +51,11 @@ public class MainFrame extends JFrame {
 
         /* Añadir componentes al panel */
         subLeftPanel.add(dataFileButton);
-        subLeftPanel.add(new Label(""));    // Celda vacía
+        subLeftPanel.add(warningText);
         subLeftPanel.add(new JLabel("Obtener centroides:"));
         subLeftPanel.add(new Label(""));    // Celda vacía
         subLeftPanel.add(randomCentroid);
-        subLeftPanel.add(kCentroids);    // Celda vacía
+        subLeftPanel.add(kCentroids);
         subLeftPanel.add(textCentroid);
         subLeftPanel.add(textCent);
         subLeftPanel.add(fileCentroid);
@@ -72,18 +73,62 @@ public class MainFrame extends JFrame {
         subLeftPanel.add(noNorm);
         subLeftPanel.add(new Label(""));    // Celda vacía
         subLeftPanel.add(run);
-        for(int i = 0; i < 15; i++)
-            subLeftPanel.add(new Label(""));
 
         content.add(subLeftPanel, BorderLayout.LINE_START);
         content.add(new Label("Hola"), BorderLayout.CENTER);
 
         /* Añadir comportamiento */
+        run.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if(dataFile != null) {               // Checar que el archivo haya sido cargado
+                    warningText.setText("");
+                    if(randomCentroid.isSelected()) {  // Checar que se de el número de centroides con la semilla
+                        if(kCentroids.getText().matches("(\\d+,\\d+){1}")) {
+                            warningText.setText("");
+                            System.out.println(kCentroids.getText());
+                            String[] numstring = kCentroids.getText().split(",");
+                            int[] kSeed = new int[2];
+                            kSeed[0] = Integer.parseInt(numstring[0]);
+                            kSeed[1] = Integer.parseInt(numstring[1]);
+                            switch (normOption) {
+                                case 0:
+                                    Redundancy r = new Redundancy(dataFile.getName());
+                                    Normalizer n = new Normalizer(dataFile.getName());
+                                    String kmeansFile = n.zScore();
+                                    for(int i = 0; i < r.pairs.length; i++)
+                                        new KMeans(kmeansFile, kSeed[1], kSeed[0], r.pairs[i][0], r.pairs[i][1], 20).graphKMeans();
+                                    break;
+                            }
+                        }
+                        else
+                            warningText.setText("   Formato: <k>, <semilla>");
+                    } else if(textCentroid.isSelected()) {              // Checar que la cadena tenga el formato correcto
+                        if(textCent.getText().matches("(\\d+,)+\\d+")) {
+                            warningText.setText("");
+                            System.out.println(textCent.getText());
+                        } else
+                            warningText.setText("   Formato: 1,2,3...,12");
+                    } else if(fileCentroid.isSelected()) { // Checar que el archivo con los centroides haya sido cargado
+                        if(centroidFile != null) {
+                            warningText.setText("");
+                            System.out.println(centroidFile.getName());
+                        } else
+                            warningText.setText("    Elija archivo de centroides");
+                    }
+                }
+                else
+                    warningText.setText("   Cargue un archivo");
+            }
+        });
+
         dataFileButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
                 int returnVal = fc.showOpenDialog(content);
-                if(returnVal == JFileChooser.APPROVE_OPTION)
+                if(returnVal == JFileChooser.APPROVE_OPTION) {
                     dataFile = fc.getSelectedFile();
+                    dataFileButton.setText(dataFile.getName());
+                }
             }
         });
 
@@ -105,12 +150,9 @@ public class MainFrame extends JFrame {
         textCent.addFocusListener(new FocusListener() {
             public void focusGained(FocusEvent actionEvent) {
                     textCentroid.setSelected(true);
-                    textCent.setText("");
             }
 
-            public void focusLost(FocusEvent actionEvent) {
-                textCent.setText("1,2,3");
-            }
+            public void focusLost(FocusEvent actionEvent) {}
         });
 
         kCentroids.addFocusListener(new FocusListener() {
@@ -121,26 +163,24 @@ public class MainFrame extends JFrame {
                 seed = r.nextInt(500);
             }
 
-            public void focusLost(FocusEvent actionEvent) {
-                kCentroids.setText("K");
-            }
+            public void focusLost(FocusEvent actionEvent) {}
         });
 
         randomCentroid.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                centroidOption = "random";
+                centroidOption = 0;
             }
         });
 
         textCentroid.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                centroidOption = "text";
+                centroidOption = 1;
             }
         });
 
         fileCentroid.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                centroidOption = "file";
+                centroidOption = 2;
             }
         });
 
