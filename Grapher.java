@@ -9,6 +9,7 @@ import org.jfree.util.ShapeUtilities;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.io.File;
 import java.io.IOException;
 
@@ -34,10 +35,10 @@ class Grapher extends JFrame{
    */
   Grapher(String title, int attr1, int attr2, int k) {
     super(title);
-    xLabel = "Atributo "  + attr1;
-    yLabel = "Atributo "  + attr2;
-    this.attr1 = attr1;
-    this.attr2 = attr2;
+    this.attr1 = attr1 + 1;
+    this.attr2 = attr2 + 1;
+    xLabel = "Atributo "  + this.attr1;
+    yLabel = "Atributo "  + this.attr2;
     titlew = title;
     dataset = new XYSeriesCollection();
     d = new XYSeries[k];
@@ -57,7 +58,7 @@ class Grapher extends JFrame{
   /**
    * Marca que ya no se registrarán mas datos y crea una imagen con la gráfica de dispersión
    */
-  public void endData() {
+  public JFreeChart endData() {
     for(XYSeries i : d)
       dataset.addSeries(i);
     JFreeChart chart = ChartFactory.createScatterPlot(titlew, xLabel, yLabel, dataset);
@@ -68,14 +69,15 @@ class Grapher extends JFrame{
         if (col == 0) {
           return ShapeUtilities.createDiagonalCross(8, 2);
         } else {
-          return super.getItemShape(row, col);
+          //return super.getItemShape(row, col);
+          return new Ellipse2D.Double(-3, -3, 6, 6);
         }
       }
     });
 
-    try {
+    /*try {
       ChartUtilities.saveChartAsJPEG(new File(attr1 + "-" + attr2 + ".jpg"), chart, 800, 600);
-    } catch (IOException e) {};
-
+    } catch (IOException e) {};*/
+    return chart;
   }
 }

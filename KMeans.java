@@ -1,9 +1,4 @@
-// @TODO Cambiar tipos de variables si se refiere a valor nominal
-// @TODO Arreglo para mostrar a que centroide está asignado cada dato
-// @TODO no se pueden graficar puntos nominales SOLO GRAFICAR ATRIBUTOS NOMINALES
-// @TODO funcion overlap para mezclar nominales y numericos
-// @TODO haciendo interfaz gráfica ver que no haya errores por cualquier entrada de datos
-// @TODO Checar que desde la interfaz gráfica, se lea que la línea de centroides no es correcta
+import org.jfree.chart.JFreeChart;
 
 import javax.xml.crypto.Data;
 import java.util.ArrayList;
@@ -56,6 +51,11 @@ class KMeans {
         belongsTo = new int[r.nData];
         clusterSizes = new int[k];
         means = initCentroids(centroids, attr1, attr2);
+        for(int i = 0; i < means.length; i++) {
+            for(int j = 0; j < means[i].length; j++)
+                System.out.print(means[i][j]);
+            System.out.println();
+        }
         calculateMeans(maxIterations);
     }
 
@@ -112,11 +112,11 @@ class KMeans {
         this.k = lines.length;
 
         double[][] centXY = new double[k][2];
-        double[] fLine = new double[r.nAttr];
+        double[] fLine;
         int count = 0;
         for(int ln = 0; ln < r.nData && count < k; ln++) {
             fLine = r.formatDouble(r.readLine());
-            if(lines[count] == ln) {      // Si nos encontramos en la línea indicada
+            if(lines[count] == ln + 1) {      // Si nos encontramos en la línea indicada (contando desde 1)
                 centXY[count][0] = fLine[attr1];
                 centXY[count][1] = fLine[attr2];
                 count++;
@@ -149,6 +149,7 @@ class KMeans {
             means[meanIndex][i] = m;
         }
     }
+
 
     /**
      * Decide el mejor centroide para un punto de datos (el más cercano)
@@ -201,14 +202,16 @@ class KMeans {
                 belongsTo[j] = index;
             }
             r.reStart(true);          // Regresar al inicio del archivo
-            if(noChange)                        // Si ningún cluster cambió, terminamos
+            if(noChange) {                      // Si ningún cluster cambió, terminamos
+                System.out.println(i + " iteraciones");
                 break;
+            }
         }
     }
 
 
-    public void graphKMeans() {
-        Grapher g = new Grapher("Ejemplo", attr1, attr2, k);
+    public JFreeChart graph() {
+        Grapher g = new Grapher(attr1 + " " + attr2, attr1, attr2, k);
         DataReader r = new DataReader(file);
         double[] fLine;
 
@@ -220,6 +223,6 @@ class KMeans {
             g.addTuple(fLine[attr1], fLine[attr2], belongsTo[i]);
         }
 
-        g.endData();
+        return g.endData();
     }
 }
