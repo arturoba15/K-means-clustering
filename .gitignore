@@ -8,3 +8,4 @@ kmeans.iml
 out/
 *.jpg
 ..gitignore.swp
+resultados

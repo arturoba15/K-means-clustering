@@ -1,7 +1,8 @@
 import org.jfree.chart.JFreeChart;
 
-import javax.xml.crypto.Data;
-import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
 import java.util.Arrays;
 import java.lang.Math;
@@ -13,6 +14,7 @@ class KMeans {
     private double[][] means;
     private int[] belongsTo; // Arreglo que indica a que cluster pertenece cada item
     private int[] clusterSizes;
+    private int iterations;
 
     /**
      * Constructor
@@ -30,6 +32,7 @@ class KMeans {
         this.attr1 = attr1;
         this.attr2 = attr2;
         belongsTo = new int[r.nData];
+        Arrays.fill(belongsTo, -1);
         clusterSizes = new int[k];
         means = getRandomCentroids(attr1, attr2);
         calculateMeans(maxIterations);
@@ -49,13 +52,10 @@ class KMeans {
         this.attr1 = attr1;
         this.attr2 = attr2;
         belongsTo = new int[r.nData];
+        for(int i = 0; i < belongsTo.length; i++)
+            belongsTo[i] = -1;
         clusterSizes = new int[k];
         means = initCentroids(centroids, attr1, attr2);
-        for(int i = 0; i < means.length; i++) {
-            for(int j = 0; j < means[i].length; j++)
-                System.out.print(means[i][j]);
-            System.out.println();
-        }
         calculateMeans(maxIterations);
     }
 
@@ -188,25 +188,60 @@ class KMeans {
         int index;
         for(int i = 0; i < maxIterations; i++) {
             noChange = true;
+            iterations = i + 1;
             for(int j = 0; j < r.nData; j++) {
                 fLine = r.formatDouble(r.readLine());
                 item[0] = fLine[attr1];
                 item[1] = fLine[attr2];
                 index = classify(item[0], item[1]);             // Clasifica item en un cluster
-                clusterSizes[index]++;                          // Actualiza el tamaño del cluster
+                if(index != belongsTo[j])                       // Si no cambió de cluster, su tamaño se mantiene
+                    clusterSizes[index]++;
                 updateMean(clusterSizes[index], index, item);   // Actualiza el mean con base en el nuevo item
 
-                if(index != belongsTo[j])        // Si el item cambió de cluster
+                if(index != belongsTo[j]) {       // Si el item cambió de cluster
                     noChange = false;
+                    if(belongsTo[j] != -1)      // Si el elemento pertenece a algún cluster, reducimos su cluster en 1
+                        clusterSizes[belongsTo[j]]--;
+                }
 
                 belongsTo[j] = index;
             }
             r.reStart(true);          // Regresar al inicio del archivo
-            if(noChange) {                      // Si ningún cluster cambió, terminamos
-                System.out.println(i + " iteraciones");
+            if(noChange)                      // Si ningún cluster cambió, terminamos
                 break;
-            }
         }
+
+        // Se crea el archivo de salida
+        try (
+                BufferedWriter writer = new BufferedWriter(new FileWriter("resultados"))
+                ) {
+            writer.write("Archivo de resultados\n\n");
+            writer.write("Atributos " + (attr1+1) + " y " + (attr2+1) + "\n\n");
+            writer.write("Número de iteraciones: " + iterations + "\n\n");
+
+            writer.write("Centroides obtenidos:\n");
+            for(int i = 0; i < means.length; i++) {
+                writer.write("Centroide " + (i+1) + ": ");
+                for(int j = 0; j < means[i].length; j++)
+                    writer.write(means[i][j] + " ");
+                writer.write("\n");
+            }
+
+            writer.write("\nDistrbución de elementos:\n");
+            for(int i = 0; i < k; i++)
+                writer.write("Cluster " + (i+1) + ": " + clusterSizes[i] + "\n");
+
+            writer.write("\nDetalles del cluster:\n");
+            for(int i = 0; i < k; i++) {
+                writer.write("Cluster " + (i+1) + ": ");
+                for(int j = 0; j < belongsTo.length; j++) {
+                    if(belongsTo[j] == i)
+                        writer.write(j + ", ");
+                }
+                writer.write("\n");
+            }
+
+        } catch(IOException e) {e.printStackTrace();}
     }
 
 
