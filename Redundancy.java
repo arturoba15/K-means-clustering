@@ -10,8 +10,8 @@ import java.util.*;
 
 class Redundancy {
     private File file;
-    public int[] attrIndex;            // Índice de los atributos en su archivo original
     public int[][] pairs;              // Contiene a las parejas de atributos que están mas fuertemente correlacionados
+    public int[] attrs;
 
     /**
      * Constructor
@@ -19,16 +19,17 @@ class Redundancy {
      */
     Redundancy(File file) {
         this.file = file;
-        int num = 10;
         int[][] rNominal, rNumeric;
-        if(num % 2 != 0) {
-            rNominal = getRelevantNominal(num/2);
-            rNumeric = getRelevantNumeric(num/2 + 1);
-        } else {
-            rNominal = getRelevantNominal(num/2);
-            rNumeric = getRelevantNumeric(num/2);
-        }
+        rNominal = getRelevantNominal(1);
+        rNumeric = getRelevantNumeric(1);
         pairs = mergeMatrices(rNominal, rNumeric);
+        int indx = 0;
+        attrs = new int[pairs.length * 2];
+        for(int i = 0; i < pairs.length; i++)
+            for(int j = 0; j < pairs[i].length; j++) {
+                attrs[indx] = pairs[i][j];
+                indx++;
+            }
     }
 
     /**
@@ -154,7 +155,6 @@ class Redundancy {
         double[] variance = new double[r.nAttr];
         double[] stdDev = new double[r.nAttr];
         double[] mean = meanNum();
-        double limit = 0.5;
 
         while ((line = r.readLine()) != null) {     // Cálculo de varianza
             fLine = r.formatDouble(line);
@@ -197,7 +197,7 @@ class Redundancy {
                         acc -= nAB;
                         acc /= r.nData * stdDev[i] * stdDev[j];
 
-                        if (Math.abs(acc) >= limit) {               // Checar que el valor sea mayor al límite
+                        if (Math.abs(acc) > 0 && Math.abs(acc) < 1) {                   // Rango donde es relevante
                             if (Math.abs(best[bestN - 1]) < Math.abs(acc)) {
                                 for (int p = 0; p < bestN; p++) {
                                     if (Math.abs(best[p]) < Math.abs(acc)) {
@@ -280,57 +280,6 @@ class Redundancy {
             mean[i] /= r.nData;
 
         return mean;
-    }
-
-    /**
-     * Crea un nuevo archivo solo con los atributos importantes
-     * Este archivo contiene como cabecera:
-     *          Número de datos
-     *          Índice de cada atributo (del archivo original)
-     *          Tipo de los archivos
-     *          Datos
-     *
-     */
-    private void genFile(int[][] bestNominal, int[][] bestNumeric) {
-        String resFile = "./genFiles/bestAttr-" + file;
-        try (
-                BufferedWriter writer = new BufferedWriter(new FileWriter(resFile))
-        ) {
-            DataReader r = new DataReader(file);
-            String arr;
-            pairs = mergeMatrices(bestNominal, bestNumeric);
-            writer.write(r.nData + "\n");                                   // Número de datos
-
-            attrIndex = getUniqueAttrs(bestNominal, bestNumeric);
-            writer.write(attrIndex.length + "\n");                          // Número de atributos relevantes
-
-            int[] attrType = new int[attrIndex.length];
-            for(int i = 0; i < attrIndex.length; i++)
-                attrType[i] = r.attrType[attrIndex[i]];
-            arr = Arrays.toString(attrType);
-            arr = arr.substring(1, arr.length()-1);
-            arr = arr.replaceAll("\\s+","") + "\n";
-            writer.write(arr);                                                  // Tipo de los atributos
-
-            double[] fLine;
-            double[] writeArray = new double[attrIndex.length];
-            while((arr = r.readLine()) != null) {                               // Datos
-                fLine = r.formatDouble(arr);
-                for (int i = 0; i < attrIndex.length; i++)
-                    writeArray[i] = fLine[attrIndex[i]];
-
-                arr = "";
-                for (int i = 0; i < writeArray.length; i++) {   // Copiar nominales sin punto decimal
-                    if(attrType[i] != 0)
-                        arr += (int)writeArray[i] + ",";
-                    else
-                        arr += writeArray[i] + ",";
-                }
-
-                arr = arr.substring(0, arr.length()-1);       // Quitar la última coma
-                writer.write(arr + "\n");
-            }
-        } catch(IOException e) {e.printStackTrace();}
     }
 
 
