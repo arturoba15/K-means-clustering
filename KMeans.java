@@ -1,14 +1,12 @@
 import org.jfree.chart.JFreeChart;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Random;
 import java.util.Arrays;
 import java.lang.Math;
 
 class KMeans {
-    private String file;
+    private File file;
     private int seed;
     private int k, attr1, attr2;
     private double[][] means;
@@ -24,7 +22,7 @@ class KMeans {
      * @param seed Semilla de generación de números aleatorios
      * @param k Número de centroides
      */
-    KMeans(String file, int seed, int k, int attr1, int attr2, int maxIterations) {
+    KMeans(File file, int seed, int k, int attr1, int attr2, int maxIterations) {
         DataReader r = new DataReader(file);
         this.file = file;
         this.seed = seed;
@@ -45,7 +43,7 @@ class KMeans {
      * @param file Nombre del archivo de datos
      * @param centroids Arreglo con las líneas de los centroides en el archivo de datos
      */
-    KMeans(String file, int[] centroids, int attr1, int attr2, int maxIterations) {
+    KMeans(File file, int[] centroids, int attr1, int attr2, int maxIterations) {
         DataReader r = new DataReader(file);
         this.file = file;
         this.k = centroids.length;
@@ -213,32 +211,32 @@ class KMeans {
 
         // Se crea el archivo de salida
         try (
-                BufferedWriter writer = new BufferedWriter(new FileWriter("resultados"))
+                PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("./genFiles/resultados-" + attr1 + "-" + attr2 + file.getName().substring(12))))
                 ) {
-            writer.write("Archivo de resultados\n\n");
-            writer.write("Atributos " + (attr1+1) + " y " + (attr2+1) + "\n\n");
-            writer.write("Número de iteraciones: " + iterations + "\n\n");
+            writer.print("Archivo de resultados\n\n");
+            writer.print("Atributos " + (attr1+1) + " y " + (attr2+1) + "\n\n");
+            writer.print("Número de iteraciones: " + iterations + "\n\n");
 
-            writer.write("Centroides obtenidos:\n");
+            writer.print("Centroides obtenidos:\n");
             for(int i = 0; i < means.length; i++) {
-                writer.write("Centroide " + (i+1) + ": ");
+                writer.print("Centroide " + (i+1) + ": ");
                 for(int j = 0; j < means[i].length; j++)
-                    writer.write(means[i][j] + " ");
-                writer.write("\n");
+                    writer.print(means[i][j] + " ");
+                writer.print("\n");
             }
 
-            writer.write("\nDistrbución de elementos:\n");
+            writer.print("\nDistrbución de elementos:\n");
             for(int i = 0; i < k; i++)
-                writer.write("Cluster " + (i+1) + ": " + clusterSizes[i] + "\n");
+                writer.print("Cluster " + (i+1) + ": " + clusterSizes[i] + "\n");
 
-            writer.write("\nDetalles del cluster:\n");
+            writer.print("\nDetalles del cluster:\n");
             for(int i = 0; i < k; i++) {
-                writer.write("Cluster " + (i+1) + ": ");
+                writer.print("Cluster " + (i+1) + ": ");
                 for(int j = 0; j < belongsTo.length; j++) {
                     if(belongsTo[j] == i)
-                        writer.write(j + ", ");
+                        writer.print(j + ", ");
                 }
-                writer.write("\n");
+                writer.print("\n");
             }
 
         } catch(IOException e) {e.printStackTrace();}

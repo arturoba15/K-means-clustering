@@ -14,13 +14,16 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
 public class MainFrame extends JFrame {
     public File dataFile, centroidFile; // Archivo de datos, archivo con los centroides (opcional)
-    public int normOption, centroidOption, k, seed;          // Tipo de normalización 0-zscore 1-minmax 2-decimal 3-no
+    public int normOption, centroidOption, seed;          // Tipo de normalización 0-zscore 1-minmax 2-decimal 3-no
                                                              // centroidOption -> 0-Aleatorio, 1-Texto, 2-Archivo
     private JFreeChart[] charts;
 
@@ -109,6 +112,7 @@ public class MainFrame extends JFrame {
         run.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                new File("./genFiles/").mkdir();
                 if(dataFile != null) {               // Checar que el archivo haya sido cargado
                     warningText.setText("");
                     if(randomCentroid.isSelected()) {  // Checar que se de el número de centroides con la semilla
@@ -118,11 +122,11 @@ public class MainFrame extends JFrame {
                             int[] kSeed = new int[2];
                             kSeed[0] = Integer.parseInt(numstring[0]);
                             kSeed[1] = Integer.parseInt(numstring[1]);
-                            DataReader dr = new DataReader(dataFile.getName());
-                            Redundancy r = new Redundancy(dataFile.getName());
-                            Normalizer n = new Normalizer(dataFile.getName());
+                            DataReader dr = new DataReader(dataFile);
+                            Redundancy r = new Redundancy(dataFile);
+                            Normalizer n = new Normalizer(dataFile);
                             String[] list;
-                            String kmeansFile = "";
+                            File kmeansFile = new File(".");
 
                             int len = 0;
                             for(int i = 0; i < r.pairs.length; i++)
@@ -152,7 +156,7 @@ public class MainFrame extends JFrame {
                                     kmeansFile = n.decimalScaling();
                                     break;
                                 case 3:
-                                    kmeansFile = dataFile.getName();
+                                    kmeansFile = dataFile;
                                     break;
                             }
                             index = 0;
@@ -177,11 +181,11 @@ public class MainFrame extends JFrame {
 
                             Arrays.sort(centroids);
 
-                            DataReader dr = new DataReader(dataFile.getName());
-                            Redundancy r = new Redundancy(dataFile.getName());
-                            Normalizer n = new Normalizer(dataFile.getName());
+                            DataReader dr = new DataReader(dataFile);
+                            Redundancy r = new Redundancy(dataFile);
+                            Normalizer n = new Normalizer(dataFile);
                             String[] list;
-                            String kmeansFile = "";
+                            File kmeansFile = new File(".");
 
                             int len = 0;
                             for(int i = 0; i < r.pairs.length; i++)
@@ -211,7 +215,7 @@ public class MainFrame extends JFrame {
                                     kmeansFile = n.decimalScaling();
                                     break;
                                 case 3:
-                                    kmeansFile = dataFile.getName();
+                                    kmeansFile = dataFile;
                                     break;
                             }
                             index = 0;
@@ -230,7 +234,69 @@ public class MainFrame extends JFrame {
                     } else if(fileCentroid.isSelected()) { // Checar que el archivo con los centroides haya sido cargado
                         if(centroidFile != null) {
                             warningText.setText("");
-                            System.out.println(centroidFile.getName());
+                            try (
+                                    BufferedReader buff = new BufferedReader(new FileReader(centroidFile.getAbsolutePath()));
+                                    ) {
+                                String centroidLine = buff.readLine();
+                                if(centroidLine.matches("(\\d+,)+\\d+")) {
+                                    String[] strCentroids = centroidLine.split(",");
+                                    int[] centroids = new int[strCentroids.length];
+                                    for(int i = 0; i < centroids.length; i++)
+                                        centroids[i] = Integer.parseInt(strCentroids[i]); // Las líneas se cuentan desde 1
+
+                                    Arrays.sort(centroids);
+
+                                    DataReader dr = new DataReader(dataFile);
+                                    Redundancy r = new Redundancy(dataFile);
+                                    Normalizer n = new Normalizer(dataFile);
+                                    String[] list;
+                                    File kmeansFile = new File(".");
+
+                                    int len = 0;
+                                    for(int i = 0; i < r.pairs.length; i++)
+                                        if(dr.attrType[r.pairs[i][0]] == 0)
+                                            len++;
+
+                                    list = new String[len];
+                                    charts = new JFreeChart[len];
+                                    int index = 0;
+                                    for(int i = 0; i < r.pairs.length; i++) {
+                                        if(dr.attrType[r.pairs[i][0]] == 0) {
+                                            list[index] = (r.pairs[i][0] + 1) + "-" + (r.pairs[i][1] + 1);
+                                            index++;
+                                        }
+                                    }
+
+                                    toggleAttributes.setListData(list);
+
+                                    switch (normOption) {
+                                        case 0:
+                                            kmeansFile = n.zScore();
+                                            break;
+                                        case 1:
+                                            kmeansFile = n.minMax();
+                                            break;
+                                        case 2:
+                                            kmeansFile = n.decimalScaling();
+                                            break;
+                                        case 3:
+                                            kmeansFile = dataFile;
+                                            break;
+                                    }
+                                    index = 0;
+                                    for(int i = 0; i < r.pairs.length; i++)
+                                        if(dr.attrType[r.pairs[i][0]] == 0) {
+                                            charts[index] = new KMeans(kmeansFile, centroids, r.pairs[i][0], r.pairs[i][1], 20).graph();
+                                            index++;
+                                        }
+
+                                    if(charts.length > 0)
+                                        chart.setChart(charts[0]);
+                                } else
+                                    warningText.setText("   Formato: 1,2,3...,12");
+
+
+                            } catch(IOException e) { e.printStackTrace(); }
                         } else
                             warningText.setText("    Elija archivo de centroides");
                     }
@@ -243,8 +309,8 @@ public class MainFrame extends JFrame {
         toggleAttributes.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent listSelectionEvent) {
-                chart.setChart(charts[toggleAttributes.getSelectedIndex()]);
-                //System.out.println(toggleAttributes.getSelectedIndex());
+                if(toggleAttributes.getSelectedIndex() > 0)
+                    chart.setChart(charts[toggleAttributes.getSelectedIndex()]);
             }
         });
 

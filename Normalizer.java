@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -7,10 +8,10 @@ import java.io.IOException;
  * Solo normaliza los valores numéricos
  */
 class Normalizer {
-  private String file;
+  private File file;
   private String dir = "./genFiles/";
 
-  Normalizer(String file) {
+  Normalizer(File file) {
     this.file = file;
   }
 
@@ -20,7 +21,7 @@ class Normalizer {
    * Regresa el nombre del archivo como cadena
    * @return Una cadena con el nombre del archivo normalizado
    */
-  public String minMax() {
+  public File minMax() {
     DataReader r = new DataReader(file);
 
     // Encuentra maximo y minimo de cada fila
@@ -41,8 +42,9 @@ class Normalizer {
     } while(line != null);
 
     // Calcula el valor normalizado y lo escribe a un archivo
+    File returnFile = new File(dir + "minmax" + file.getName());
     try (
-    BufferedWriter writer = new BufferedWriter(new FileWriter(dir + "minmax" + file))
+    BufferedWriter writer = new BufferedWriter(new FileWriter(returnFile))
     ) {
       String[] res = new String[r.nAttr];
       r.reStart(false);
@@ -62,7 +64,7 @@ class Normalizer {
       }
     } catch(IOException e) {e.printStackTrace();}
 
-    return dir + "minmax" + file;
+    return returnFile;
   }
 
   /**
@@ -71,7 +73,7 @@ class Normalizer {
    * Regresa el nombre del archivo como cadena
    * @return Una cadena con el nombre del archivo normalizado
    */
-  public String zScore() {
+  public File zScore() {
     DataReader r = new DataReader(file);
     String line;
 
@@ -115,8 +117,9 @@ class Normalizer {
     }
 
     // Calcula el valor normalizado y lo escribe a un archivo
+    File returnFile = new File(dir + "zscore" + file.getName());
     try (
-    BufferedWriter writer = new BufferedWriter(new FileWriter(dir + "zscore" + file))
+    BufferedWriter writer = new BufferedWriter(new FileWriter(returnFile))
     ) {
       String[] res = new String[r.nAttr];
       r.reStart(false);
@@ -136,7 +139,7 @@ class Normalizer {
       }
     } catch(IOException e) {e.printStackTrace();}
 
-    return dir + "zscore" + file;
+    return returnFile;
   }
 
   /**
@@ -145,7 +148,7 @@ class Normalizer {
    * Regresa el nombre del archivo como cadena
    * @return Una cadena con el nombre del archivo normalizado
    */
-  public String decimalScaling() {
+  public File decimalScaling() {
     DataReader r = new DataReader(file);
     String line;
 
@@ -176,8 +179,9 @@ class Normalizer {
     }
 
     // Calcula el valor normalizado y lo escribe a un archivo
+    File returnFile = new File(dir + "decimal" + file.getName());
     try (
-    BufferedWriter writer = new BufferedWriter(new FileWriter(dir + "decimal" + file))
+            BufferedWriter writer = new BufferedWriter(new FileWriter(returnFile))
     ) {
       String[] res = new String[r.nAttr];
       r.reStart(false);
@@ -197,7 +201,7 @@ class Normalizer {
       }
     } catch(IOException e) {e.printStackTrace();}
 
-    return dir + "decimal" + file;
+    return returnFile;
   }
 
   /* Métodos de ayuda */

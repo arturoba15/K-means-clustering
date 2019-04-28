@@ -19,8 +19,8 @@ class DataReader {
      * Constructor de la clase.
      * @param filename Nombre del archivo
      */
-    DataReader(String filename) {
-        file = new File(filename);
+    DataReader(File filename) {
+        file = new File(filename.getAbsolutePath());
         readHead();
         nNum = countItem(attrType, 0);
         try {

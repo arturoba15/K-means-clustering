@@ -9,7 +9,7 @@ import java.util.*;
  */
 
 class Redundancy {
-    private String file;
+    private File file;
     public int[] attrIndex;            // Índice de los atributos en su archivo original
     public int[][] pairs;              // Contiene a las parejas de atributos que están mas fuertemente correlacionados
 
@@ -17,7 +17,7 @@ class Redundancy {
      * Constructor
      *
      */
-    Redundancy(String file) {
+    Redundancy(File file) {
         this.file = file;
         int num = 10;
         int[][] rNominal, rNumeric;

@@ -6,6 +6,8 @@ makefile
 .idea/
 kmeans.iml
 out/
+META-INF/
+genFiles/
 *.jpg
 ..gitignore.swp
 resultados
