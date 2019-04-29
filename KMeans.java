@@ -11,6 +11,7 @@ class KMeans {
     private int seed;
     private int k, attr1, attr2;
     private double[][] means;   // Matriz que contiene los valores de los centroides
+    private int[][] mode;   // Matriz que contiene arreglos usados por cada cluster para determinar la moda
     private int[] belongsTo; // Arreglo que indica a que cluster pertenece cada item
     private int[] clusterSizes;
     private int iterations;
@@ -45,6 +46,7 @@ class KMeans {
                 this.attr1 = attr2;
                 this.attr2 = attr1;
             }
+            mode = new int[k][r.attrType[this.attr2]];
             means = getRandomCentroids(this.attr1, this.attr2);
             calculateMeansMix(maxIterations);
         }
@@ -80,6 +82,7 @@ class KMeans {
                 this.attr1 = attr2;
                 this.attr2 = attr1;
             }
+            mode = new int[k][r.attrType[this.attr2]];
             calculateMeansMix(maxIterations);
         }
     }
@@ -373,11 +376,14 @@ class KMeans {
         double[] item = new double[2];
         double[] fLine;
         int index;
-        int[] mode;    // Arreglo para guardar cuantas veces se ha visto un valor nominal
         for(int i = 0; i < maxIterations; i++) {
             noChange = true;
             iterations = i + 1;
-            mode = new int[r.attrType[attr2]];
+
+            for(int b = 0; b < mode.length; b++)            // Reiniciar la matriz de modas
+                for(int v = 0; v < mode[b].length; v++)
+                    mode[b][v] = 0;
+
             double max = getMax(attr1);
             double min = getMin(attr1);
             for(int j = 0; j < r.nData; j++) {
@@ -387,7 +393,7 @@ class KMeans {
                 index = classifyMix(item[0], item[1], max, min);             // Clasifica item en un cluster
                 if(index != belongsTo[j])                       // Si no cambió de cluster, su tamaño se mantiene
                     clusterSizes[index]++;
-                updateMeanMix(clusterSizes[index], index, item, mode);   // Actualiza el mean con base en el nuevo item
+                updateMeanMix(clusterSizes[index], index, item, mode[index]);   // Actualiza el mean con base en el nuevo item
 
                 if(index != belongsTo[j]) {       // Si el item cambió de cluster
                     noChange = false;
