@@ -112,7 +112,12 @@ public class MainFrame extends JFrame {
         run.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                new File("./genFiles/").mkdir();
+                File dir = new File("./genFiles/");
+                dir.mkdir();
+                File[] files = dir.listFiles();
+                for(File file : files)
+                    file.delete();
+
                 if(dataFile != null) {               // Checar que el archivo haya sido cargado
                     warningText.setText("");
                     if(randomCentroid.isSelected()) {  // Checar que se de el número de centroides con la semilla
@@ -160,13 +165,25 @@ public class MainFrame extends JFrame {
                                     break;
                             }
                             index = 0;
+                            boolean flag = true;
                             for (int i = 0; i < r.attrs.length; i++)
                                 for (int j = 0; j < r.attrs.length; j++) {
                                     if (i < j) {
                                         if (!(dr.attrType[r.attrs[i]] > 0 && dr.attrType[r.attrs[j]] > 0)) {
                                             if (dr.attrType[r.attrs[i]] == 0 && dr.attrType[r.attrs[j]] == 0) {
-                                                charts[index] = new KMeans(kmeansFile, kSeed[1], kSeed[0], r.attrs[i], r.attrs[j], 20).graph();
-                                                index++;
+                                                for(int y = 0; y < r.pairs.length; y++) {
+                                                    if(r.pairs[y][0] == r.attrs[i] && r.pairs[y][1] == r.attrs[j]) {
+                                                        charts[index] = new KMeans(kmeansFile, kSeed[1], kSeed[0], r.attrs[i], r.attrs[j], 20).graph();
+                                                        index++;
+                                                        flag = false;
+                                                        break;
+                                                    }
+                                                }
+
+                                                if(flag) {
+                                                    new KMeans(kmeansFile, kSeed[1], kSeed[0], r.attrs[i], r.attrs[j], 20);
+                                                    flag = true;
+                                                }
                                             } else {
                                                 new KMeans(kmeansFile, kSeed[1], kSeed[0], r.attrs[i], r.attrs[j], 20);
                                             }
@@ -174,8 +191,10 @@ public class MainFrame extends JFrame {
                                     }
                                 }
 
-                            if(charts.length > 0)
+                            if(charts.length > 0) {
                                 chart.setChart(charts[0]);
+                                toggleAttributes.setSelectedIndex(0);
+                            }
                         }
                         else
                             warningText.setText("   Formato: <k>, <semilla>");
@@ -228,13 +247,25 @@ public class MainFrame extends JFrame {
                             }
 
                             index = 0;
+                            boolean flag = true;
                             for (int i = 0; i < r.attrs.length; i++)
                                 for (int j = 0; j < r.attrs.length; j++) {
                                     if (i < j) {
                                         if (!(dr.attrType[r.attrs[i]] > 0 && dr.attrType[r.attrs[j]] > 0)) {
                                             if (dr.attrType[r.attrs[i]] == 0 && dr.attrType[r.attrs[j]] == 0) {
-                                                charts[index] = new KMeans(kmeansFile, centroids, r.attrs[i], r.attrs[j], 20).graph();
-                                                index++;
+                                                for(int y = 0; y < r.pairs.length; y++) {
+                                                    if(r.pairs[y][0] == r.attrs[i] && r.pairs[y][1] == r.attrs[j]) {
+                                                        charts[index] = new KMeans(kmeansFile, centroids, r.attrs[i], r.attrs[j], 20).graph();
+                                                        index++;
+                                                        flag = false;
+                                                        break;
+                                                    }
+                                                }
+
+                                                if(flag) {
+                                                    new KMeans(kmeansFile, centroids, r.attrs[i], r.attrs[j], 20);
+                                                    flag = true;
+                                                }
                                             } else {
                                                 new KMeans(kmeansFile, centroids, r.attrs[i], r.attrs[j], 20);
                                             }
@@ -242,8 +273,10 @@ public class MainFrame extends JFrame {
                                     }
                                 }
 
-                            if(charts.length > 0)
+                            if(charts.length > 0) {
                                 chart.setChart(charts[0]);
+                                toggleAttributes.setSelectedIndex(0);
+                            }
 
 
                         } else
@@ -302,13 +335,25 @@ public class MainFrame extends JFrame {
                                     }
 
                                     index = 0;
+                                    boolean flag = true;
                                     for (int i = 0; i < r.attrs.length; i++)
                                         for (int j = 0; j < r.attrs.length; j++) {
                                             if (i < j) {
                                                 if (!(dr.attrType[r.attrs[i]] > 0 && dr.attrType[r.attrs[j]] > 0)) {
                                                     if (dr.attrType[r.attrs[i]] == 0 && dr.attrType[r.attrs[j]] == 0) {
-                                                        charts[index] = new KMeans(kmeansFile, centroids, r.attrs[i], r.attrs[j], 20).graph();
-                                                        index++;
+                                                        for(int y = 0; y < r.pairs.length; y++) {
+                                                            if(r.pairs[y][0] == r.attrs[i] && r.pairs[y][1] == r.attrs[j]) {
+                                                                charts[index] = new KMeans(kmeansFile, centroids, r.attrs[i], r.attrs[j], 20).graph();
+                                                                index++;
+                                                                flag = false;
+                                                                break;
+                                                            }
+                                                        }
+
+                                                        if(flag) {
+                                                            new KMeans(kmeansFile, centroids, r.attrs[i], r.attrs[j], 20);
+                                                            flag = true;
+                                                        }
                                                     } else {
                                                         new KMeans(kmeansFile, centroids, r.attrs[i], r.attrs[j], 20);
                                                     }
@@ -316,8 +361,10 @@ public class MainFrame extends JFrame {
                                             }
                                         }
 
-                                    if(charts.length > 0)
+                                    if(charts.length > 0) {
                                         chart.setChart(charts[0]);
+                                        toggleAttributes.setSelectedIndex(0);
+                                    }
                                 } else
                                     warningText.setText("   Formato: 1,2,3...,12");
 

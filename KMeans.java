@@ -241,7 +241,7 @@ class KMeans {
 
         // Se crea el archivo de salida
         try (
-                PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("./genFiles/resultados-" + (attr1+1) + "-" + (attr2+1) + file.getName().substring(12))))
+                PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("./genFiles/res-" + (attr1+1) + "-" + (attr2+1) + "-" + file.getName())))
                 ) {
             writer.print("Archivo de resultados\n\n");
             writer.print("Atributos " + (attr1+1) + " y " + (attr2+1) + "\n\n");
@@ -411,7 +411,7 @@ class KMeans {
 
         // Se crea el archivo de salida
         try (
-                PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("./genFiles/resultados-" + (attr1+1) + "-" + (attr2+1) + file.getName().substring(12))))
+                PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("./genFiles/res-" + (attr1+1) + "-" + (attr2+1) + "-" + file.getName())))
         ) {
             writer.print("Archivo de resultados\n\n");
             writer.print("Atributos " + (attr1+1) + " y " + (attr2+1) + "\n\n");

@@ -21,15 +21,10 @@ class Redundancy {
         this.file = file;
         int[][] rNominal, rNumeric;
         rNominal = getRelevantNominal(1);
-        rNumeric = getRelevantNumeric(1);
+        rNumeric = getRelevantNumeric(5);
         pairs = mergeMatrices(rNominal, rNumeric);
-        int indx = 0;
         attrs = new int[pairs.length * 2];
-        for(int i = 0; i < pairs.length; i++)
-            for(int j = 0; j < pairs[i].length; j++) {
-                attrs[indx] = pairs[i][j];
-                indx++;
-            }
+        attrs = getUniqueAttrs(rNominal, rNumeric);
     }
 
     /**
@@ -50,13 +45,13 @@ class Redundancy {
             int attr2N = r.attrType[attr2];
             String line;
             int v1, v2;                         // valores de los atributos
-            int[] fLine;
+            double[] fLine;
             int[][] obs = new int[attr1N][attr2N];      // Matriz de las observaciones
 
             while ((line = r.readLine()) != null) {     // Se llena la matriz con las observaciones
-                fLine = r.formatInt(line);
-                v1 = fLine[attr1];
-                v2 = fLine[attr2];
+                fLine = r.formatDouble(line);
+                v1 = (int)fLine[attr1];
+                v2 = (int)fLine[attr2];
                 obs[v1][v2]++;
             }
 
